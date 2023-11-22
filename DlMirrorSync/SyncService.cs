@@ -28,6 +28,7 @@ public sealed class SyncService
             _logger.LogInformation("Fetching subscriptions...");
             var subscriptions = await _dataLayer.Subscriptions(stoppingToken);
             var mirrorUris = await _mirrorService.GetMyMirrorUris(stoppingToken);
+            _logger.LogInformation("Mirror uris: {mirrorUris}", string.Join("\n", mirrorUris));
 
             var haveFunds = true;
             await foreach (var id in _mirrorService.FetchLatest(stoppingToken))

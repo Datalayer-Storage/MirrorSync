@@ -28,7 +28,7 @@ public sealed class MirrorService
         // https://github.com/MichaelTaylor3D/chia-datalayer-mirror-tools/blob/main/ip-utils.js
         await Task.CompletedTask;
 
-        var uri = _configuration["DlMirrorSync:MirrorServiceUri"];
+        var uri = _configuration["DlMirrorSync:MirrorHostUri"];
         if (string.IsNullOrEmpty(uri))
         {
             return Enumerable.Empty<string>();
