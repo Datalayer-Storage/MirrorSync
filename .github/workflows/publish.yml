@@ -23,7 +23,7 @@ jobs:
         dotnet-version: 8.0.x
     - name: Restore dependencies
       run: dotnet restore
-      working-directory: DlMirrorSync
+      working-directory: /DlMirrorSync
     - name: Publish-standalone
       run: dotnet publish --no-restore ./${{ env.SRC }}/${{ env.NAME }}.csproj -c Release -r ${{ matrix.RUNTIME }} --framework ${{ env.FRAMEWORK }} --self-contained true /p:Version=${{ env.VERSION }} /p:PublishReadyToRun=true /p:PublishSingleFile=True /p:PublishTrimmed=false /p:IncludeNativeLibrariesForSelfExtract=True /p:PublishDir="bin\Release/${{ env.FRAMEWORK }}/${{ env.RUNTIME }}" --output ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
-      working-directory: DlMirrorSync
+      working-directory: /DlMirrorSync
