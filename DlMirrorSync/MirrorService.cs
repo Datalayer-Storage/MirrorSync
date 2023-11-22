@@ -22,6 +22,20 @@ public sealed class MirrorService
         IConfiguration configuration) =>
         (_logger, _configuration) = (logger, configuration);
 
+    public async Task<IEnumerable<string>> GetMyMirrorUris(CancellationToken cancellationToken)
+    {
+        // will eventually add reverse dns lookup.
+        // https://github.com/MichaelTaylor3D/chia-datalayer-mirror-tools/blob/main/ip-utils.js
+        await Task.CompletedTask;
+
+        var uri = _configuration["DlMirrorSync:MirrorServiceUri"];
+        if (string.IsNullOrEmpty(uri))
+        {
+            return Enumerable.Empty<string>();
+        }
+        return [uri];
+    }
+
     public async IAsyncEnumerable<string> FetchLatest([EnumeratorCancellation] CancellationToken stoppingToken)
     {
         var uri = _configuration["DlMirrorSync:MirrorServiceUri"] ?? throw new InvalidOperationException("Missing MirrorServiceUri");
