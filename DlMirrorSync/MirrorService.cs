@@ -7,6 +7,7 @@ using Newtonsoft.Json.Serialization;
 
 public sealed class MirrorService
 {
+    private readonly DnsService _dnsService;
     private readonly ILogger<MirrorService> _logger;
     private readonly IConfiguration _configuration;
     private readonly JsonSerializerSettings _settings = new JsonSerializerSettings
@@ -18,17 +19,14 @@ public sealed class MirrorService
     };
 
     public MirrorService(
+        DnsService dnsService,
         ILogger<MirrorService> logger,
         IConfiguration configuration) =>
-        (_logger, _configuration) = (logger, configuration);
+        (_dnsService, _logger, _configuration) = (dnsService, logger, configuration);
 
     public async Task<IEnumerable<string>> GetMyMirrorUris(CancellationToken cancellationToken)
     {
-        // will eventually add reverse dns lookup.
-        // https://github.com/MichaelTaylor3D/chia-datalayer-mirror-tools/blob/main/ip-utils.js
-        await Task.CompletedTask;
-
-        var uri = _configuration["DlMirrorSync:MirrorHostUri"];
+        var uri = await _dnsService.GetHostUri(cancellationToken);
         if (string.IsNullOrEmpty(uri))
         {
             return Enumerable.Empty<string>();
