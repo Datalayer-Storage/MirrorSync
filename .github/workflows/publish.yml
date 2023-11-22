@@ -10,7 +10,7 @@ jobs:
         runtime: [win-x64, linux-x64, osx-x64]
     runs-on: windows-latest
     env:
-      SRC: 'src'
+      SRC: 'DlMirrorSync'
       NAME: 'DlMirrorSync'
       FRAMEWORK: 'net8.0'
       VERSION: '0.2.0'
