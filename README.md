@@ -36,6 +36,8 @@ If you are running the single file or standalone versions you can run the follow
 First build the binaries by running `publish.ps1` [[powershell for linux](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-linux)]
 which will build single file and standalone binaries for windows, linux, and os-x. Outputs will be placed in the `publish` folder. Then run the following commands to install the service:
 
+First set an options in the `appsettings.json` file in the relevant `./publish/standalone` folder.
+
 #### Windows
 
 To manually install as a windows service run `./install.ps1` from an elevated terminal.

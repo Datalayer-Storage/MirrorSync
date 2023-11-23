@@ -22,7 +22,7 @@ USERNAME=${1:-$(logname)}
 # in 'dlsync.service' and save as '/etc/systemd/system/dlsync.service'
 sudo sed "s/USERNAME/$USERNAME/g" "$DIR/dlsync.service" > "/etc/systemd/system/dlsync.service"
 
-
+# start the service and set to start on boot
 sudo systemctl start dlsync
 sudo systemctl status dlsync
 sudo systemctl enable dlsync
