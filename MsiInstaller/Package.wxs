@@ -17,11 +17,16 @@
     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
     <Package Name="$(Name)" Manufacturer="$(Manufacturer)" Version="$(Version)" UpgradeCode="$(var.UpgradeCode)" Compressed="true">
-        <Property Id="HOSTENVVARIABLE" Hidden="no" Secure="yes"/>
+        <!-- User configurable properties -->
+        <Property Id="MIRROR_HOST_URI" Hidden="no" Secure="yes"/>
+
+        <!-- This gives the user the chance to set other configrations before they start the service -->
+        <Property Id="START_SERVICE_IMMEDIATELY" Value="1" Secure="yes"/>
+
 
         <!-- UI defintion -->
         <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
-        <ui:WixUI Id="WixUI_InstallDir_EnvVar" InstallDirectory="INSTALLFOLDER" />
+        <ui:WixUI Id="InstallDir_EnvVar" InstallDirectory="INSTALLFOLDER" />
 
         <MediaTemplate EmbedCab="yes" />
         <!-- Allow upgrades and prevent downgrades -->
@@ -38,7 +43,7 @@
 			 the DlMirrorSync directory via INSTALLFOLDER -->
         <DirectoryRef Id="INSTALLFOLDER">
             <Component Id="HostEnv" Guid="d06d2c24-fc41-43ff-9675-3a4e29cd6437">
-                <Environment Id="HostEnvVariable" Name="DlMirrorSync:MirrorHostUri" Value="[HOSTENVVARIABLE]" Part="all" Action="set" System="yes" />
+                <Environment Id="MIRROR_HOST_URI" Name="DlMirrorSync:MirrorHostUri" Value="[MIRROR_HOST_URI]" Part="all" Action="set" System="yes" />
             </Component>
             <!-- Create a single component which is the DlMirrorSync.exe file -->
             <Component Id="AppSettings">
@@ -54,11 +59,10 @@
                 <RemoveFile Id="ALLFILES" Name="*.*" On="both" />
 
                 <!-- Tell WiX to install the Service -->
-                <ServiceInstall Id="ServiceInstaller" Type="ownProcess" Name="DlMirrorSync" DisplayName="$(Name)" Description="The Data Layer Mirror Sync Service watches for new chia data layer stores and subscribes to them." Start="auto" Account="LocalSystem" ErrorControl="normal" Arguments='"C:\Users\[USERNAME]\.chia\mainnet\config\config.yaml"'>
-                </ServiceInstall>
+                <ServiceInstall Id="ServiceInstaller" Type="ownProcess" Name="DlMirrorSync" DisplayName="$(Name)" Description="The Data Layer Mirror Sync Service watches for new chia data layer stores and subscribes to them." Start="auto" Account="LocalSystem" ErrorControl="normal" Arguments='"C:\Users\[USERNAME]\.chia\mainnet\config\config.yaml"'/>
 
                 <!-- Tell WiX to start the Service -->
-                <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="DlMirrorSync" Wait="true" />
+                <ServiceControl Id="StartService" Stop="both" Remove="uninstall" Name="DlMirrorSync" Wait="true"/>
             </Component>
         </DirectoryRef>
 
@@ -70,4 +74,95 @@
         </Feature>
 
     </Package>
+
+    <Fragment>
+        <UI>
+            <TextStyle Id="BoldText" FaceName="Tahoma" Size="8" Bold="yes" />
+
+            <Dialog Id="EnvVarDlg" Width="370" Height="270" Title="Environment Variable">
+                <Control Id="EnvVarDescription" Type="Text" X="25" Y="70" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="The uri of your mirror host. Leave blank to use your public IP." />
+                <Control Id="EnvVarEdit" Type="Edit" X="45" Y="85" Width="220" Height="15" Property="MIRROR_HOST_URI" />
+
+                <Control Id="StartServiceCheckbox" Type="CheckBox" X="45" Y="120" Width="280" Height="15" Property="START_SERVICE_IMMEDIATELY" CheckBoxValue="1" Text="Start service immediately." />
+
+
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+                    <Publish Event="SpawnDialog" Value="CancelDlg" />
+                </Control>
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="WixUI_Bmp_Banner" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+                <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Host Configuration" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="Click next to use default configuration or change settings." />
+            </Dialog>
+        </UI>
+    </Fragment>
+
+    <?foreach WIXUIARCH in X64 ?>
+    <Fragment>
+        <UI Id="InstallDir_EnvVar_$(WIXUIARCH)">
+            <Publish Dialog="LicenseAgreementDlg" Control="Print" Event="DoAction" Value="WixUIPrintEula_$(WIXUIARCH)" />
+            <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath_$(WIXUIARCH)" Order="3" Condition="NOT WIXUI_DONTVALIDATEPATH" />
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="DoAction" Value="WixUIValidatePath_$(WIXUIARCH)" Order="2" Condition="NOT WIXUI_DONTVALIDATEPATH" />
+        </UI>
+        <UIRef Id="InstallDir_EnvVar" />
+    </Fragment>
+    <?endforeach?>
+
+    <Fragment>
+        <UI Id="file InstallDir_EnvVar">
+            <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+            <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+            <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+
+            <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+
+            <DialogRef Id="BrowseDlg" />
+            <DialogRef Id="DiskCostDlg" />
+            <DialogRef Id="ErrorDlg" />
+            <DialogRef Id="FatalError" />
+            <DialogRef Id="FilesInUse" />
+            <DialogRef Id="MsiRMFilesInUse" />
+            <DialogRef Id="PrepareDlg" />
+            <DialogRef Id="ProgressDlg" />
+            <DialogRef Id="ResumeDlg" />
+            <DialogRef Id="UserExit" />
+            <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4" Condition="NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID&lt;&gt;&quot;1&quot;" />
+
+            <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999" />
+
+            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="LicenseAgreementDlg" Condition="NOT Installed" />
+            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Condition="Installed AND PATCH" />
+
+            <Publish Dialog="LicenseAgreementDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" />
+            <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Condition="LicenseAccepted = &quot;1&quot;" />
+
+            <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg" />
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="1" />
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg" Order="3" Condition="NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID&lt;&gt;&quot;1&quot;" />
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="EnvVarDlg" Order="4" Condition="WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID=&quot;1&quot;" />
+            <Publish Dialog="InstallDirDlg" Control="ChangeFolder" Property="_BrowseProperty" Value="[WIXUI_INSTALLDIR]" Order="1" />
+            <Publish Dialog="InstallDirDlg" Control="ChangeFolder" Event="SpawnDialog" Value="BrowseDlg" Order="2" />
+
+            <Publish Dialog="EnvVarDlg" Control="Back" Event="NewDialog" Value="InstallDirDlg" />
+            <Publish Dialog="EnvVarDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" />
+
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="EnvVarDlg" Order="1" Condition="NOT Installed" />
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2" Condition="Installed AND NOT PATCH" />
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2" Condition="Installed AND PATCH" />
+
+            <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg" />
+
+            <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg" />
+            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg" />
+            <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg" />
+
+            <Property Id="ARPNOMODIFY" Value="1" />
+        </UI>
+
+        <UIRef Id="WixUI_Common" />
+    </Fragment>
 </Wix>

@@ -6,6 +6,5 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.UI.wixext" Version="4.0.2"></PackageReference>
-    <Compile Include="WixUI_InstallDir_EnvVar.wxs" />
   </ItemGroup>
 </Project>
