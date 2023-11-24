@@ -7,7 +7,7 @@ jobs:
   build:
     strategy:
       matrix:
-        runtime: [win-x64, linux-x64, osx-x64]
+        runtime: [win-x64] #, linux-x64, osx-x64]
     runs-on: windows-latest
     env:
       SRC: 'DlMirrorSync'
@@ -25,6 +25,14 @@ jobs:
         dotnet-version: 8.0.x
     - name: Publish
       run: dotnet publish ./${{ env.SRC }}/${{ env.NAME }}.csproj -c Release -r ${{ matrix.RUNTIME }} --framework ${{ env.FRAMEWORK }} --self-contained true /p:Version=${{ env.VERSION }} /p:PublishReadyToRun=true /p:PublishSingleFile=True /p:PublishTrimmed=false /p:IncludeNativeLibrariesForSelfExtract=True /p:PublishDir="bin\Release/${{ env.FRAMEWORK }}/${{ env.RUNTIME }}" --output ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
+    - name: Sign the binaries
+      uses: skymatic/code-sign-action@v1
+      with:
+        certificate: '${{ secrets.SM_CLIENT_CERT_FILE_B64 }}'
+        password: '${{ secrets.SM_CLIENT_CERT_PASSWORD }}'
+        certificatesha1: '${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }}'
+        # certificatename: '${{ secrets.CERTNAME }}'
+        folder: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
     - name: Setup WiX
       if: matrix.RUNTIME == 'win-x64'
       run: dotnet tool install -g wix; wix extension add -g WixToolset.UI.wixext
