@@ -26,7 +26,8 @@ jobs:
     - name: Setup WiX
       run: dotnet tool install -g wix; wix extension add -g WixToolset.UI.wixext
     - name: Build installer
-      run: dotnet build ./MsiInstaller/MsiInstaller.wixproj -c Release -r win-x64 --output ${{ env.OUTPUT_ROOT }}
+      working-directory: ./MsiInstaller
+      run: dotnet build MsiInstaller.wixproj -c Release -r win-x64 --output ${{ env.OUTPUT_ROOT }}
     - uses: actions/upload-artifact@v3
       with:
         name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
