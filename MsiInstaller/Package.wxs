@@ -11,12 +11,11 @@
 <!-- Define the variables in "$(var.*) expressions" -->
 <?define Name = "Data Layer Mirror Sync Service" ?>
 <?define Manufacturer = "DataLayer-Storage" ?>
-<?define Version = "0.2.0.0" ?>
 <?define UpgradeCode = "4E4A92BC-3DA5-4A74-BF8E-D48CFD01010C" ?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
-    <Package Name="$(Name)" Manufacturer="$(Manufacturer)" Version="$(Version)" UpgradeCode="$(var.UpgradeCode)" Compressed="true">
+    <Package Name="$(Name)" Manufacturer="$(Manufacturer)" Version="!(bind.FileVersion.DlMirrorSync.exe)" UpgradeCode="$(var.UpgradeCode)" Compressed="true">
         <!-- User configurable properties -->
         <Property Id="MIRROR_HOST_URI" Hidden="no" Secure="yes"/>
 
