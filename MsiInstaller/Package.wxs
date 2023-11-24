@@ -21,8 +21,12 @@
         <Property Id="MIRROR_HOST_URI" Hidden="no" Secure="yes"/>
 
         <!-- This gives the user the chance to set other configrations before they start the service -->
-        <Property Id="START_SERVICE_IMMEDIATELY" Value="1" Secure="yes"/>
+        <!-- <Property Id="START_SERVICE_IMMEDIATELY" Value="1" Secure="yes"/>
+        <CustomAction Id="StartMyService" Directory="INSTALLFOLDER" ExeCommand="[SystemFolder]sc.exe start DlMirrorSync" Return="check" Impersonate="no"/>
 
+        <InstallExecuteSequence>
+            <Custom Action="StartMyService" After="InstallFinalize" Condition="START_SERVICE_IMMEDIATELY=1"/>
+        </InstallExecuteSequence> -->
 
         <!-- UI defintion -->
         <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
@@ -39,8 +43,7 @@
             </Directory>
         </StandardDirectory>
 
-        <!-- The files inside this DirectoryRef are linked to
-			 the DlMirrorSync directory via INSTALLFOLDER -->
+        <!-- The files inside this DirectoryRef are linked to the DlMirrorSync directory via INSTALLFOLDER -->
         <DirectoryRef Id="INSTALLFOLDER">
             <Component Id="HostEnv" Guid="d06d2c24-fc41-43ff-9675-3a4e29cd6437">
                 <Environment Id="MIRROR_HOST_URI" Name="DlMirrorSync:MirrorHostUri" Value="[MIRROR_HOST_URI]" Part="all" Action="set" System="yes" />
@@ -50,19 +53,17 @@
                 <File Id="appsettings.json" Source="..\publish\standalone\win-x64\appsettings.json" KeyPath="true" />
             </Component>
             <Component Id="ServiceExecutable" Bitness="always64">
-
-                <!-- Copies the DlMirrorSync.exe file using the
-					 project reference preprocessor variables -->
+                <!-- Copies the DlMirrorSync.exe file using the project reference preprocessor variables -->
                 <File Id="DlMirrorSync.exe" Source="..\publish\standalone\win-x64\DlMirrorSync.exe" KeyPath="true" />
 
                 <!-- Remove all files from the INSTALLFOLDER on uninstall -->
                 <RemoveFile Id="ALLFILES" Name="*.*" On="both" />
 
                 <!-- Tell WiX to install the Service -->
-                <ServiceInstall Id="ServiceInstaller" Type="ownProcess" Name="DlMirrorSync" DisplayName="$(Name)" Description="The Data Layer Mirror Sync Service watches for new chia data layer stores and subscribes to them." Start="auto" Account="LocalSystem" ErrorControl="normal" Arguments='"C:\Users\[USERNAME]\.chia\mainnet\config\config.yaml"'/>
+                <ServiceInstall Id="ServiceInstaller" Type="ownProcess" Name="DlMirrorSync" DisplayName="$(Name)" Description="The Data Layer Mirror Sync Service watches for new chia data layer stores and subscribes to them." Start="auto" Account="LocalSystem" ErrorControl="normal" Arguments='"[%HOMEDRIVE][%HOMEPATH]\.chia\mainnet\config\config.yaml"'/>
 
                 <!-- Tell WiX to start the Service -->
-                <ServiceControl Id="StartService" Stop="both" Remove="uninstall" Name="DlMirrorSync" Wait="true"/>
+                <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="DlMirrorSync" Wait="true"/>
             </Component>
         </DirectoryRef>
 
@@ -83,8 +84,7 @@
                 <Control Id="EnvVarDescription" Type="Text" X="25" Y="70" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="The uri of your mirror host. Leave blank to use your public IP." />
                 <Control Id="EnvVarEdit" Type="Edit" X="45" Y="85" Width="220" Height="15" Property="MIRROR_HOST_URI" />
 
-                <Control Id="StartServiceCheckbox" Type="CheckBox" X="45" Y="120" Width="280" Height="15" Property="START_SERVICE_IMMEDIATELY" CheckBoxValue="1" Text="Start service immediately." />
-
+                <!-- <Control Id="StartServiceCheckbox" Type="CheckBox" X="45" Y="120" Width="280" Height="15" Property="START_SERVICE_IMMEDIATELY" CheckBoxValue="1" Text="Start service immediately." /> -->
 
                 <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
                 <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)" />
