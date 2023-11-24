@@ -21,11 +21,17 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
-    - name: Setup WiX
-      run: dotnet tool install -g wix; wix extension add -g WixToolset.UI.wixext
     - name: Publish-standalone
       run: dotnet publish ./${{ env.SRC }}/${{ env.NAME }}.csproj -c Release -r ${{ matrix.RUNTIME }} --framework ${{ env.FRAMEWORK }} --self-contained true /p:Version=${{ env.VERSION }} /p:PublishReadyToRun=true /p:PublishSingleFile=True /p:PublishTrimmed=false /p:IncludeNativeLibrariesForSelfExtract=True /p:PublishDir="bin\Release/${{ env.FRAMEWORK }}/${{ env.RUNTIME }}" --output ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
     - uses: actions/upload-artifact@v3
       with:
         name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
         path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
+    - name: Setup WiX
+      run: dotnet tool install -g wix; wix extension add -g WixToolset.UI.wixext
+    - name: Build installer
+      run: dotnet build ./MsiInstaller/MsiInstaller.wixproj -c Release -r win-x64 --output ${{ env.OUTPUT_ROOT }}
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
+        path: ${{ env.OUTPUT_ROOT }}/en-us/*.msi  
