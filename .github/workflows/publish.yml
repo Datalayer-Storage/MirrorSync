@@ -7,13 +7,13 @@ jobs:
   build:
     strategy:
       matrix:
-        runtime: [win-x64] #, linux-x64, osx-x64]
+        runtime: [win-x64, linux-x64, osx-x64]
     runs-on: windows-latest
     env:
       SRC: 'DlMirrorSync'
       NAME: 'DlMirrorSync'
       FRAMEWORK: 'net8.0'
-      VERSION: '0.2.0'
+      VERSION: '0.2.1'
       OUTPUT_ROOT: './publish'
     steps:
     - uses: actions/checkout@v3
@@ -26,15 +26,20 @@ jobs:
     - name: Publish
       run: dotnet publish ./${{ env.SRC }}/${{ env.NAME }}.csproj -c Release -r ${{ matrix.RUNTIME }} --framework ${{ env.FRAMEWORK }} --self-contained true /p:Version=${{ env.VERSION }} /p:PublishReadyToRun=true /p:PublishSingleFile=True /p:PublishTrimmed=false /p:IncludeNativeLibrariesForSelfExtract=True /p:PublishDir="bin\Release/${{ env.FRAMEWORK }}/${{ env.RUNTIME }}" --output ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
     - name: Setup WiX
+      if: matrix.RUNTIME == 'win-x64'
       run: dotnet tool install -g wix; wix extension add -g WixToolset.UI.wixext
     - name: Build installer
+      if: matrix.RUNTIME == 'win-x64'
       working-directory: ./MsiInstaller
       run: dotnet build MsiInstaller.wixproj -c Release -r win-x64 --output ${{ env.OUTPUT_ROOT }}
-    - uses: actions/upload-artifact@v3
-      with:
-        name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
-        path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
-    - uses: actions/upload-artifact@v3
+    - name: Upload installer
+      uses: actions/upload-artifact@v3
+      if: matrix.RUNTIME == 'win-x64'
       with:
         name: ${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
         path: ${{ env.OUTPUT_ROOT }}/en-us/*.msi
+    - name: Upload binaries
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
+        path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
