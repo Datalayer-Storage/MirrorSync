@@ -7,7 +7,7 @@ jobs:
   build:
     strategy:
       matrix:
-        runtime: [win-x64, linux-x64, osx-x64]
+        runtime: [win-x64] #, linux-x64, osx-x64]
     runs-on: windows-latest
     env:
       SRC: 'DlMirrorSync'
@@ -17,8 +17,8 @@ jobs:
       OUTPUT_ROOT: './publish'
     steps:
     - uses: actions/checkout@v3
-    # - name: Setup tmate session
-    #   uses: mxschmitt/action-tmate@v3
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
