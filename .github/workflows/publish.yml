@@ -27,6 +27,6 @@ jobs:
       uses: thedoctor0/zip-release@0.7.5
       with:
         type: 'zip'
-        filename: '$name-$version-standalone-$runtime.zip'
+        filename: '${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}.zip'
         exclusions: 'appsettings.Development.json'
-        path: '$outputRoot/standalone/$runtime/'
+        path: '${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/'
