@@ -17,8 +17,8 @@ jobs:
       OUTPUT_ROOT: './publish'
     steps:
     - uses: actions/checkout@v3
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
+    # - name: Setup tmate session
+    #   uses: mxschmitt/action-tmate@v3
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
@@ -30,11 +30,11 @@ jobs:
     - name: Build installer
       working-directory: ./MsiInstaller
       run: dotnet build MsiInstaller.wixproj -c Release -r win-x64 --output ${{ env.OUTPUT_ROOT }}
-    # - uses: actions/upload-artifact@v3
-    #  with:
-    #    name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
-    #    path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
-    # - uses: actions/upload-artifact@v3
-    #  with:
-    #    name: ${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
-    #    path: ${{ env.OUTPUT_ROOT }}/en-us/*.msi
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
+        path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
+        path: ${{ env.OUTPUT_ROOT }}/en-us/*.msi
