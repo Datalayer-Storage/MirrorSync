@@ -17,8 +17,8 @@ jobs:
       OUTPUT_ROOT: './publish'
     steps:
     - uses: actions/checkout@v3
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
+    # - name: Setup tmate session
+    #   uses: mxschmitt/action-tmate@v3
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
@@ -31,7 +31,7 @@ jobs:
     - name: Build installer
       if: matrix.RUNTIME == 'win-x64'
       working-directory: ./MsiInstaller
-      run: dotnet build MsiInstaller.wixproj -c Release -r win-x64 --output ${{ env.OUTPUT_ROOT }}
+      run: dotnet build MsiInstaller.wixproj -c Release -r win-x64 --output ../${{ env.OUTPUT_ROOT }}
     - name: Upload installer
       uses: actions/upload-artifact@v3
       if: matrix.RUNTIME == 'win-x64'
