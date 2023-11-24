@@ -23,14 +23,7 @@ jobs:
         dotnet-version: 8.0.x
     - name: Publish-standalone
       run: dotnet publish ./${{ env.SRC }}/${{ env.NAME }}.csproj -c Release -r ${{ matrix.RUNTIME }} --framework ${{ env.FRAMEWORK }} --self-contained true /p:Version=${{ env.VERSION }} /p:PublishReadyToRun=true /p:PublishSingleFile=True /p:PublishTrimmed=false /p:IncludeNativeLibrariesForSelfExtract=True /p:PublishDir="bin\Release/${{ env.FRAMEWORK }}/${{ env.RUNTIME }}" --output ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
-    - name: Archive Release
-      uses: thedoctor0/zip-release@0.7.5
-      with:
-        type: 'zip'
-        filename: '${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}.zip'
-        exclusions: 'appsettings.Development.json'
-        path: '${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/'
     - uses: actions/upload-artifact@v3
       with:
         name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
-        path: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}.zip
+        path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
