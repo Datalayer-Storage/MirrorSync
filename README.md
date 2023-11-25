@@ -34,9 +34,7 @@ If you are running the single file or standalone versions you can run the follow
 ### Install As a Service
 
 First build the binaries by running `publish.ps1` [[powershell for linux](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-linux)]
-which will build single file and standalone binaries for windows, linux, and os-x. Outputs will be placed in the `publish` folder. Then run the following commands to install the service:
-
-First set an options in the `appsettings.json` file in the relevant `./publish/standalone` folder.
+which will build single file and standalone binaries for windows, linux, and os-x. Outputs will be placed in the `publish` folder. Second, set any options in the `appsettings.json` file in the relevant `./publish/standalone` folder. Then run the following commands to install the service:
 
 #### Windows
 
@@ -52,9 +50,9 @@ These settings can be configured in the `appsettings.json` file or via environme
 
 - __MirrorServer__: true - If true, this node will mirror the singletons from datalayer.storage in addition to subscribing to them.
 - __MirrorHostUri__: "" - The host uri to use for mirroring. If empty, will default to the host machine's public IP address.
-- __WaitingForChangeDelayMinutes__: 2 - The number of minutes to wait if spendable balance is 0 but change is owes.
-- __PollingIntervalMinutes__: 1440 - The number of minutes to wait between polling for new singletons.
+- __WaitingForChangeDelayMinutes__: 2 - The number of minutes to wait if spendable balance is 0 but change is owed.
+- __PollingIntervalMinutes__: 1440 - The number of minutes to wait between checking for new singletons.
 - __MirrorServiceUri__: <https://api.datalayer.storage/mirrors/v1/list_all> - The uri to use for retrieving the list of singletons to mirror.
 - __DefaultFee__: 500000, - The default fee to use for mirroring singletons if the dynamic fee cannot be retrieved.
 - __AddMirrorAmount__: 300000001 - The number of mojos to reserve in the mirror coin for each singleton.
-- __XchWalletId__: 1 - The wallet XCH id to use for paying the fee and reserve amount.
+- __XchWalletId__: 1 - The XCH wallet id to use for paying the fee and reserve amount.
