@@ -70,7 +70,7 @@ public sealed class MirrorService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{Message}", ex.Message);
+            _logger.LogWarning("There was a problem fetching the singleton list: {Message}", ex.InnerException?.Message ?? ex.Message);
             // this is not fatal to the process, so return an empty page
             return new PageRecord();
         }

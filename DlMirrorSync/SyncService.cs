@@ -28,7 +28,7 @@ public sealed class SyncService
             _logger.LogInformation("Fetching subscriptions...");
             var subscriptions = await _dataLayer.Subscriptions(stoppingToken);
             var mirrorUris = await _mirrorService.GetMyMirrorUris(stoppingToken);
-            _logger.LogInformation("Mirror uris: {mirrorUris}", string.Join("\n", mirrorUris));
+            _logger.LogInformation("Using mirror uris: {mirrorUris}", string.Join("\n", mirrorUris));
 
             var haveFunds = true;
             await foreach (var id in _mirrorService.FetchLatest(stoppingToken))
@@ -56,7 +56,7 @@ public sealed class SyncService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{Message}", ex.Message);
+            _logger.LogWarning("There was a problem syncing subscriptions: {Message}", ex.InnerException?.Message ?? ex.Message);
         }
     }
 
