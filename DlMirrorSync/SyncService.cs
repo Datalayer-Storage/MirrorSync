@@ -48,10 +48,6 @@ public sealed class SyncService
                     // next time around we will try again
                     haveFunds = await AddMirror(id, reserveAmount, mirrorUris, fee, stoppingToken);
                 }
-                else
-                {
-                    _logger.LogInformation("No mirror uris configured. Skipping mirror sync.");
-                }
             }
         }
         catch (Exception ex)
