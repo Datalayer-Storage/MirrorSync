@@ -7,7 +7,8 @@ using chia.dotnet;
 // if present add it to the config with the key 'chia_config_path'
 if (args.Length == 1)
 {
-    args = new string[] { $"chia_config_path={args.First()}" };
+    // just modifying the args itself since that gets passed through to the builder
+    args = [$"chia_config_path={args.First()}"];
 }
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddWindowsService(options =>

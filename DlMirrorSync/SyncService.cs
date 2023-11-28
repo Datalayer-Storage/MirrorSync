@@ -64,12 +64,13 @@ public sealed class SyncService
         if (!mirrors.Any(m => m.Ours))
         {
             var balance = await xchWallet.GetBalance(stoppingToken);
-            if (reserveAmount + fee < balance.SpendableBalance)
+            var neededFunds = reserveAmount + fee;
+            if (neededFunds < balance.SpendableBalance)
             {
                 _logger.LogInformation("Adding mirror {id}", id);
                 await _dataLayer.AddMirror(id, reserveAmount, mirrorUris, fee, stoppingToken);
             }
-            else if (balance.SpendableBalance == 0 && (reserveAmount + fee < balance.PendingChange || reserveAmount + fee < balance.ConfirmedWalletBalance))
+            else if (balance.SpendableBalance < neededFunds && (neededFunds < balance.PendingChange || neededFunds < balance.ConfirmedWalletBalance))
             {
                 // no more spendable funds but we have change incoming, pause and then see if it has arrived
                 var waitingForChangeDelayMinutes = _configuration.GetValue("App:WaitingForChangeDelayMinutes", 2);
@@ -78,7 +79,7 @@ public sealed class SyncService
             }
             else
             {
-                _logger.LogWarning("Insufficient funds to add mirror {id}. Balance={SpendableBalance}, Cost={reserveAmount}, Fee={fee}", id, balance.SpendableBalance, reserveAmount, fee);
+                _logger.LogWarning("Insufficient funds to add mirror {id}. Balance={ConfirmedWalletBalance}, Cost={reserveAmount}, Fee={fee}", id, balance.ConfirmedWalletBalance, reserveAmount, fee);
                 _logger.LogWarning("Pausing sync for now");
                 return false; // out of money, stop mirror syncing
             }
