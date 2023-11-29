@@ -34,8 +34,17 @@ public sealed class SyncPollingService : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{Message}", ex.Message);
-
+            if (ex is AggregateException aggregateException)
+            {
+                foreach (var innerException in aggregateException.Flatten().InnerExceptions)
+                {
+                    _logger.LogError(innerException, "One or many tasks failed: {Message}", innerException.Message);
+                }
+            }
+            else
+            {
+                _logger.LogError(ex, "{Message}", ex.Message);
+            }
             // Terminates this process and returns an exit code to the operating system.
             // This is required to avoid the 'BackgroundServiceExceptionBehavior', which
             // performs one of two scenarios:

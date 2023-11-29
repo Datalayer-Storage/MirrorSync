@@ -3,8 +3,7 @@ using chia.dotnet;
 namespace DlMirrorSync;
 
 /// <summary>
-/// Wrapper type to hold multiple RpcClient instances by name because the
-/// Core DI framework doesn't support named instances.
+/// Wrapper type to hold multiple RpcClient instances by name
 /// </summary>
 public sealed class RpcClientHost : IDisposable
 {
