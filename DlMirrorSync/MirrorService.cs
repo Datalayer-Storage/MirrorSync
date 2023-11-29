@@ -38,7 +38,7 @@ public sealed class MirrorService
     {
         var uri = _configuration["DlMirrorSync:MirrorServiceUri"] ?? throw new InvalidOperationException("Missing MirrorServiceUri");
 
-        _logger.LogInformation("Fetching latest mirrors from {uri}", uri);
+        using var _ = new ScopedLogEntry(_logger, $"Fetching latest mirrors from {uri}");
         using var httpClient = new HttpClient();
         var currentPage = 1;
         var totalPages = 0; // we won't know actual total pages until we get the first page
@@ -52,7 +52,6 @@ public sealed class MirrorService
             {
                 yield return singleton.SingletonId;
             }
-            System.Diagnostics.Debug.WriteLine($"Page {currentPage} of {totalPages}");
 
             currentPage++;
         } while (currentPage <= totalPages && !stoppingToken.IsCancellationRequested);
@@ -62,6 +61,7 @@ public sealed class MirrorService
     {
         try
         {
+            using var _ = new ScopedLogEntry(_logger, $"Fetching page {currentPage} from {uri}");
             using var response = await httpClient.GetAsync($"{uri}?page={currentPage}", stoppingToken);
             response.EnsureSuccessStatusCode();
 

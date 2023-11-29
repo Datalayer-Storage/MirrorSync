@@ -19,13 +19,13 @@ public sealed class SyncService
 
     public async Task SyncSubscriptions(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Syncing mirrors...");
+        using var _ = new ScopedLogEntry(_logger, "Syncing subscriptions.");
         try
         {
             var reserveAmount = _configuration.GetValue<ulong>("DlMirrorSync:AddMirrorAmount", 300000001);
             var fee = await _chiaService.GetFee(reserveAmount, stoppingToken);
 
-            _logger.LogInformation("Fetching subscriptions...");
+            using var __ = new ScopedLogEntry(_logger, "Getting subscriptions.");
             var subscriptions = await _dataLayer.Subscriptions(stoppingToken);
             var mirrorUris = await _mirrorService.GetMyMirrorUris(stoppingToken);
             _logger.LogInformation("Using mirror uris: {mirrorUris}", string.Join("\n", mirrorUris));
@@ -38,7 +38,7 @@ public sealed class SyncService
                 // or subscribe to a singleton but not be able to pay for the mirror etc
                 if (!subscriptions.Contains(id))
                 {
-                    _logger.LogInformation("Subscribing to {id}", id);
+                    using var ___ = new ScopedLogEntry(_logger, $"Subscribing to {id}");
                     await _dataLayer.Subscribe(id, Enumerable.Empty<string>(), stoppingToken);
                 }
 
@@ -67,7 +67,7 @@ public sealed class SyncService
             var neededFunds = reserveAmount + fee;
             if (neededFunds < balance.SpendableBalance)
             {
-                _logger.LogInformation("Adding mirror {id}", id);
+                using var ___ = new ScopedLogEntry(_logger, $"Adding mirror {id}");
                 await _dataLayer.AddMirror(id, reserveAmount, mirrorUris, fee, stoppingToken);
             }
             else if (balance.SpendableBalance < neededFunds && (neededFunds < balance.PendingChange || neededFunds < balance.ConfirmedWalletBalance))
