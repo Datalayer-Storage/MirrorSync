@@ -17,7 +17,7 @@ public sealed class ChiaService
         try
         {
             using var _ = new ScopedLogEntry(_logger, "Getting fee estimate");
-            int[] targetTimes = [300]; // five minutes
+            int[] targetTimes = [_configuration.GetValue<int>("DlMirrorSync:FeeEstimateTargetTimeMinutes", 5) * 60];
             var fee = await _fullNode.GetFeeEstimate(cost, targetTimes, stoppingToken);
             return fee.estimates.First();
         }
