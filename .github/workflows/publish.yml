@@ -1,53 +1,85 @@
 name: Publish
 
 on:
-  workflow_dispatch:
+    workflow_dispatch:
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        runtime: [win-x64] #, linux-x64, osx-x64]
-    runs-on: windows-latest
-    env:
-      SRC: 'DlMirrorSync'
-      NAME: 'DlMirrorSync'
-      FRAMEWORK: 'net8.0'
-      VERSION: '0.2.1'
-      OUTPUT_ROOT: './publish'
-    steps:
-    - uses: actions/checkout@v3
-    # - name: Setup tmate session
-    #   uses: mxschmitt/action-tmate@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
-    - name: Publish
-      run: dotnet publish ./${{ env.SRC }}/${{ env.NAME }}.csproj -c Release -r ${{ matrix.RUNTIME }} --framework ${{ env.FRAMEWORK }} --self-contained true /p:Version=${{ env.VERSION }} /p:PublishReadyToRun=true /p:PublishSingleFile=True /p:PublishTrimmed=false /p:IncludeNativeLibrariesForSelfExtract=True /p:PublishDir="bin\Release/${{ env.FRAMEWORK }}/${{ env.RUNTIME }}" --output ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
-    - name: Sign the binaries
-      uses: skymatic/code-sign-action@v1
-      with:
-        certificate: '${{ secrets.SM_CLIENT_CERT_FILE_B64 }}'
-        password: '${{ secrets.SM_CLIENT_CERT_PASSWORD }}'
-        certificatesha1: '${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }}'
-        # certificatename: '${{ secrets.CERTNAME }}'
-        folder: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
-    - name: Setup WiX
-      if: matrix.RUNTIME == 'win-x64'
-      run: dotnet tool install -g wix; wix extension add -g WixToolset.UI.wixext
-    - name: Build installer
-      if: matrix.RUNTIME == 'win-x64'
-      working-directory: ./MsiInstaller
-      run: dotnet build MsiInstaller.wixproj -c Release -r win-x64 --output ../${{ env.OUTPUT_ROOT }}
-    - name: Upload installer
-      uses: actions/upload-artifact@v3
-      if: matrix.RUNTIME == 'win-x64'
-      with:
-        name: ${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
-        path: ${{ env.OUTPUT_ROOT }}/en-us/*.msi
-    - name: Upload binaries
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
-        path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
+    build:
+        strategy:
+            matrix:
+                runtime: [win-x64] #, linux-x64, osx-x64]
+        runs-on: windows-latest
+        env:
+            SRC: "DlMirrorSync"
+            NAME: "DlMirrorSync"
+            FRAMEWORK: "net8.0"
+            VERSION: "0.2.1"
+            OUTPUT_ROOT: "./publish"
+        steps:
+            - uses: actions/checkout@v3
+            # - name: Setup tmate session
+            #   uses: mxschmitt/action-tmate@v3
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v3
+              with:
+                  dotnet-version: 8.0.x
+            - name: Publish
+              run: dotnet publish ./${{ env.SRC }}/${{ env.NAME }}.csproj -c Release -r ${{ matrix.RUNTIME }} --framework ${{ env.FRAMEWORK }} --self-contained true /p:Version=${{ env.VERSION }} /p:PublishReadyToRun=true /p:PublishSingleFile=True /p:PublishTrimmed=false /p:IncludeNativeLibrariesForSelfExtract=True /p:PublishDir="bin\Release/${{ env.FRAMEWORK }}/${{ matrix.RUNTIME }}" --output ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
+            - name: Setup Certificate
+              run: |
+                  echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > /d/Certificate_pkcs12.p12
+                  cat /d/Certificate_pkcs12.p12
+              shell: bash
+            - name: Set variables
+              id: variables
+              run: |
+                  echo "::set-output name=version::${GITHUB_REF#refs/tags/v}"
+                  echo "::set-output name=KEYPAIR_NAME::Key_454819080"
+                  echo "SM_HOST=${{ secrets.SM_HOST }}" >> "$GITHUB_ENV"
+                  echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> "$GITHUB_ENV"
+                  echo "SM_CLIENT_CERT_FILE=D:\\Certificate_pkcs12.p12" >> "$GITHUB_ENV"
+                  echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> "$GITHUB_ENV"
+                  echo "C:\Program Files (x86)\Windows Kits\10\App Certification Kit" >> $GITHUB_PATH
+                  echo "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools" >> $GITHUB_PATH
+                  echo "C:\Program Files\DigiCert\DigiCert One Signing Manager Tools" >> $GITHUB_PATH
+                  echo "C:\Program Files\DigiCert\DigiCert Keylocker Tools" >> $GITHUB_PATH
+              shell: bash\
+            - name: Setting up the client tools
+              run: |
+                  curl -X GET  https://one.digicert.com/signingmanager/api-ui/v1/releases/Keylockertools-windows-x64.msi/download?account_id=e94ff86e-6519-4598-a066-6b6b252245f0 -H "x-api-key:%SM_API_KEY%" -o smtools-windows-x64.msi
+                  msiexec /i smtools-windows-x64.msi /qn
+              shell: cmd
+            - name: Setup SSM KSP on windows latest
+              run: |
+                  curl -X GET  https://stage.one.digicert.com/signingmanager/api-ui/v1/releases/smtools-windows-x64.msi/download -H "x-api-key:%SM_API_KEY%" -o smtools-windows-x64.msi
+                  msiexec /i smtools-windows-x64.msi /quiet /qn
+                  smksp_registrar.exe list
+                  smctl.exe keypair ls
+                  C:\Windows\System32\certutil.exe -csp "DigiCert Signing Manager KSP" -key -user
+                  smksp_cert_sync.exe
+              shell: cmd
+            - name: Signing using Signtool
+              run: |
+                  signtool.exe sign /sha1 ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
+            - name: Signtool verify
+              run: |
+                  signtool verify /v /pa ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
+              shell: cmd
+            - name: Setup WiX
+              if: matrix.RUNTIME == 'win-x64'
+              run: dotnet tool install -g wix; wix extension add -g WixToolset.UI.wixext
+            - name: Build installer
+              if: matrix.RUNTIME == 'win-x64'
+              working-directory: ./MsiInstaller
+              run: dotnet build MsiInstaller.wixproj -c Release -r win-x64 --output ../${{ env.OUTPUT_ROOT }}
+            - name: Upload installer
+              uses: actions/upload-artifact@v3
+              if: matrix.RUNTIME == 'win-x64'
+              with:
+                  name: ${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
+                  path: ${{ env.OUTPUT_ROOT }}/en-us/*.msi
+            - name: Upload binaries
+              uses: actions/upload-artifact@v3
+              with:
+                  name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
+                  path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
