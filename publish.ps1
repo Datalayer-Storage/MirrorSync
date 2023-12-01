@@ -27,6 +27,7 @@ function Publish-Project {
 Publish-Project("win-x64")
 Publish-Project("linux-x64")
 Publish-Project("osx-x64")
+Publish-Project("linux-arm64")
 
 if ([System.Environment]::OSVersion.Platform -eq "Win32NT") {
     # build the msi - win-x64 only
