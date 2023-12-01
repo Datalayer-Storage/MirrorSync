@@ -149,6 +149,12 @@ jobs:
                   name: ${{ env.NAME }}-${{ matrix.RUNTIME }}
                   path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
 
+            - name: Download Windows Installer
+              uses: actions/download-artifact@v3
+              with:
+                  name: ${{ env.NAME }}-service-${{ matrix.RUNTIME }}.msi
+                  path: .
+
             - name: Get tag name
               id: tag-name
               run: echo "TAGNAME=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_OUTPUT
