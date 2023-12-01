@@ -89,34 +89,10 @@ jobs:
         if: matrix.RUNTIME == 'win-x64'
         run: dotnet tool install -g wix; wix extension add -g WixToolset.UI.wixext
 
-      - name: List files
-        run: |
-          ls -la
-        shell: bash
-        working-directory: ../
-
-      - name: List files
-        run: |
-          ls -la
-        shell: bash
-        working-directory: ./MsiInstaller
-
       - name: Build installer
         if: matrix.RUNTIME == 'win-x64'
         working-directory: ./MsiInstaller
         run: dotnet build MsiInstaller.wixproj -c Release -r win-x64 --output ../${{ env.OUTPUT_ROOT }}
-
-      - name: List files
-        run: |
-          ls -la
-        shell: bash
-        working-directory: ${{ env.OUTPUT_ROOT }}
-
-      - name: List files 2
-        run: |
-          ls -la
-        shell: bash
-        working-directory: ${{ env.OUTPUT_ROOT }}/en-us
 
       - name: Signing WinInstaller using Signtool
         working-directory: ${{ env.OUTPUT_ROOT }}/en-us
@@ -170,6 +146,11 @@ jobs:
       - name: Get tag name
         id: tag-name
         run: echo "TAGNAME=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_OUTPUT
+
+      - name: List files
+        run: |
+          ls -la
+        shell: bash
 
       - name: Upload to S3 with checksum
         run: |
