@@ -111,11 +111,6 @@ jobs:
         with:
           name: ${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
           path: ${{ env.OUTPUT_ROOT }}/en-us/*.msi
-      - name: Upload binaries
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
-          path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
   
   release:
     runs-on: ubuntu-latest
@@ -140,8 +135,8 @@ jobs:
       - name: Download Windows artifacts
         uses: actions/download-artifact@v3
         with:
-          name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
-          path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
+          name: ${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
+          path: ./
 
       - name: Get tag name
         id: tag-name
@@ -154,14 +149,13 @@ jobs:
         shell: bash
 
       - name: List files
-        working-directory: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
         run: |
           ls -la
         shell: bash
 
       - name: Upload to S3 with checksum
         run: |
-          winInstallerFile=${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/${{ env.NAME }}-service-win-x64.msi
+          winInstallerFile=${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
           winInstallerChecksum=$(md5sum "$winInstallerFile" | cut -d ' ' -f 1)
           aws s3 cp "$winInstallerFile" s3://dlaas/releases/${{ env.NAME }}-${{ env.VERSION }}-service-win-x64-${{ steps.tag-name.outputs.TAGNAME }}.msi --metadata md5="$winInstallerChecksum"
           aws s3 cp "$winInstallerFile" s3://dlaas/releases/${{ env.NAME }}-${{ env.VERSION }}-service-win-x64-latest.msi --metadata md5="$winInstallerChecksum"
