@@ -84,6 +84,12 @@ jobs:
         run: |
           ls -la
         shell: bash
+        working-directory: ../MsiInstaller
+
+      - name: List files
+        run: |
+          ls -la
+        shell: bash
         working-directory: ./MsiInstaller
 
       - name: Build installer
