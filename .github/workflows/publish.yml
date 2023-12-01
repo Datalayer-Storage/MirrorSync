@@ -141,11 +141,12 @@ jobs:
               with:
                   name: ${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
                   path: ${{ env.OUTPUT_ROOT }}/en-us/*.msi
+
             - name: Upload binaries
               uses: actions/upload-artifact@v3
               with:
                   name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
-                  path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
+                  path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/*
 
     release:
         runs-on: ubuntu-latest
