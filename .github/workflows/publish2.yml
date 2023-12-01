@@ -80,6 +80,12 @@ jobs:
         if: matrix.RUNTIME == 'win-x64'
         run: dotnet tool install -g wix; wix extension add -g WixToolset.UI.wixext
 
+      - name: List files
+        run: |
+          ls -la
+        shell: bash
+        working-directory: ./MsiInstaller
+
       - name: Build installer
         if: matrix.RUNTIME == 'win-x64'
         working-directory: ./MsiInstaller
