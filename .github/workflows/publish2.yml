@@ -28,7 +28,7 @@ jobs:
         run: dotnet restore
       
       - name: Build project
-        run: dotnet publish ./${{ env.SRC }}/${{ env.NAME }}.csproj -c Release -r ${{ matrix.RUNTIME }} --framework ${{ env.FRAMEWORK }} --self-contained true /p:Version=${{ env.VERSION }} /p:PublishReadyToRun=true /p:PublishSingleFile=True /p:PublishTrimmed=false /p:IncludeNativeLibrariesForSelfExtract=True /p:PublishDir="bin\Release/${{ env.FRAMEWORK }}/${{ env.RUNTIME }}" --output ./dist
+        run: dotnet publish ./${{ env.SRC }}/${{ env.NAME }}.csproj -c Release -r ${{ matrix.RUNTIME }} --framework ${{ env.FRAMEWORK }} --self-contained true /p:Version=${{ env.VERSION }} /p:PublishReadyToRun=true /p:PublishSingleFile=True /p:PublishTrimmed=false /p:IncludeNativeLibrariesForSelfExtract=True /p:PublishDir="bin\Release/${{ env.FRAMEWORK }}/${{ matrix.RUNTIME }}" --output ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
 
       - name: Setup Certificate
         run: |
@@ -69,11 +69,11 @@ jobs:
 
       - name: Signing using Signtool
         run: |
-          signtool.exe sign /sha1 ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 ${{ github.workspace }}\dist\${{ env.NAME }}.exe
+          signtool.exe sign /sha1 ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 ${{ env.OUTPUT_ROOT }}\standalone\${{ matrix.RUNTIME }}\${{ env.NAME }}.exe
 
       - name: Signtool verify
         run: |
-          signtool verify /v /pa ${{ github.workspace }}\dist\${{ env.NAME }}.exe
+          signtool verify /v /pa ${{ env.OUTPUT_ROOT }}\standalone\${{ matrix.RUNTIME }}\${{ env.NAME }}.exe
         shell: cmd
 
       - name: Setup WiX
