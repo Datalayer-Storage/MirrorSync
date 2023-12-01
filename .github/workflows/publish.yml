@@ -30,6 +30,15 @@ jobs:
                   $pfx_base64 = "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}"
                   $pfx_bytes = [System.Convert]::FromBase64String($pfx_base64)
                   [System.IO.File]::WriteAllBytes("certificate.pfx", $pfx_bytes)
+            - name: Find signtool
+              run: |
+                  $signtool = Get-Command -Name "signtool.exe" -ErrorAction SilentlyContinue
+                  if ($signtool -eq $null)
+                  {
+                    Write-Error "signtool.exe not found"
+                    exit 1
+                  }
+                  Write-Host "signtool.exe found at $($signtool.Source)"             
             - name: Sign with PFX
               run: |
                   $binaryPath = "${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/DlMirrorSync.exe"
