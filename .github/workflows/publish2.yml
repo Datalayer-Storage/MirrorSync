@@ -112,7 +112,7 @@ jobs:
       - name: Signing WinInstaller using Signtool
         working-directory: ./MsiInstaller
         run: |
-          signtool.exe sign /sha1 ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 ${{ env.OUTPUT_ROOT }}/en-us/${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
+          signtool.exe sign /sha1 ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 ${{ env.OUTPUT_ROOT }}/en-us/${{ env.NAME }}-service-win-x64.msi
 
       - name: Signtool verify WinInstaller
         run: |
