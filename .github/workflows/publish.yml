@@ -16,7 +16,7 @@ jobs:
     build:
         strategy:
             matrix:
-                runtime: [win-x64, linux-x64, osx-x64]
+                runtime: [win-x64, linux-x64, osx-x64, linux-arm64]
         runs-on: windows-2019
         env:
             SRC: "DlMirrorSync"
@@ -114,13 +114,13 @@ jobs:
               uses: actions/upload-artifact@v3
               if: matrix.RUNTIME == 'win-x64'
               with:
-                  name: ${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
+                  name: ${{ env.NAME }}-service-${{ matrix.RUNTIME }}.msi
                   path: ${{ env.OUTPUT_ROOT }}/en-us/*.msi
 
             - name: Upload binaries
               uses: actions/upload-artifact@v3
               with:
-                  name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
+                  name: ${{ env.NAME }}-${{ matrix.RUNTIME }}
                   path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/*
 
     release:
@@ -146,7 +146,7 @@ jobs:
             - name: Download Windows artifacts
               uses: actions/download-artifact@v3
               with:
-                  name: ${{ env.NAME }}-${{ env.VERSION }}-standalone-${{ matrix.RUNTIME }}
+                  name: ${{ env.NAME }}-${{ matrix.RUNTIME }}
                   path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
 
             - name: Get tag name
