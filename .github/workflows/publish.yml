@@ -153,9 +153,15 @@ jobs:
           ls -la
         shell: bash
 
+      - name: List files
+        working-directory: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
+        run: |
+          ls -la
+        shell: bash
+
       - name: Upload to S3 with checksum
         run: |
-          winInstallerFile=./publish/${{ env.NAME }}-service-win-x64.msi
+          winInstallerFile=${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/${{ env.NAME }}-service-win-x64.msi
           winInstallerChecksum=$(md5sum "$winInstallerFile" | cut -d ' ' -f 1)
           aws s3 cp "$winInstallerFile" s3://dlaas/releases/${{ env.NAME }}-${{ env.VERSION }}-service-win-x64-${{ steps.tag-name.outputs.TAGNAME }}.msi --metadata md5="$winInstallerChecksum"
           aws s3 cp "$winInstallerFile" s3://dlaas/releases/${{ env.NAME }}-${{ env.VERSION }}-service-win-x64-latest.msi --metadata md5="$winInstallerChecksum"
