@@ -30,6 +30,8 @@ jobs:
                   $pfx_base64 = "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}"
                   $pfx_bytes = [System.Convert]::FromBase64String($pfx_base64)
                   [System.IO.File]::WriteAllBytes("certificate.pfx", $pfx_bytes)
+            - name: Install Windows SDK
+              run: choco install windows-sdk-10.0                  
             - name: Find signtool
               run: |
                   $signtool = Get-Command -Name "signtool.exe" -ErrorAction SilentlyContinue
