@@ -29,13 +29,13 @@ jobs:
               run: |
                   $pfx_base64 = "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}"
                   $pfx_bytes = [System.Convert]::FromBase64String($pfx_base64)
-                  [System.IO.File]::WriteAllBytes("certificate.pfx", $pfx_bytes)           
+                  [System.IO.File]::WriteAllBytes("certificate.pfx", $pfx_bytes)
             - name: Sign with PFX
               run: |
                   $binaryPath = "${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/DlMirrorSync.exe"
                   $pfxPath = "certificate.pfx"
                   $pfxPassword = "${{ secrets.SM_CLIENT_CERT_PASSWORD }}"
-                  $signToolPath = "C:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe"
+                  $signToolPath = "C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe"
                   & $signToolPath sign /f $pfxPath /p $pfxPassword /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $binaryPath
             - name: Setup WiX
               if: matrix.RUNTIME == 'win-x64'
