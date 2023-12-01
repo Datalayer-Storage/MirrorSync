@@ -33,9 +33,6 @@ jobs:
               with:
                   dotnet-version: 8.0.x
 
-            - name: Restore dependencies
-              run: dotnet restore
-
             - name: Build project
               run: dotnet publish ./${{ env.SRC }}/${{ env.NAME }}.csproj -c Release -r ${{ matrix.RUNTIME }} --framework ${{ env.FRAMEWORK }} --self-contained true /p:Version=${{ env.VERSION }} /p:PublishReadyToRun=true /p:PublishSingleFile=True /p:PublishTrimmed=false /p:IncludeNativeLibrariesForSelfExtract=True /p:PublishDir="bin\Release/${{ env.FRAMEWORK }}/${{ matrix.RUNTIME }}" --output ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}
 
@@ -95,41 +92,19 @@ jobs:
               if: matrix.RUNTIME == 'win-x64'
               run: dotnet tool install -g wix; wix extension add -g WixToolset.UI.wixext
 
-            - name: List files
-              run: |
-                  ls -la
-              shell: bash
-              working-directory: ../
-
-            - name: List files
-              run: |
-                  ls -la
-              shell: bash
-              working-directory: ./MsiInstaller
-
             - name: Build installer
               if: matrix.RUNTIME == 'win-x64'
               working-directory: ./MsiInstaller
               run: dotnet build MsiInstaller.wixproj -c Release -r win-x64 --output ../${{ env.OUTPUT_ROOT }}
 
-            - name: List files
-              run: |
-                  ls -la
-              shell: bash
-              working-directory: ${{ env.OUTPUT_ROOT }}
-
-            - name: List files 2
-              run: |
-                  ls -la
-              shell: bash
-              working-directory: ${{ env.OUTPUT_ROOT }}/en-us
-
             - name: Signing WinInstaller using Signtool
+              if: matrix.RUNTIME == 'win-x64'
               working-directory: ${{ env.OUTPUT_ROOT }}/en-us
               run: |
                   signtool.exe sign /sha1 ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 ./${{ env.NAME }}-service-win-x64.msi
 
             - name: Signtool verify WinInstaller
+              if: matrix.RUNTIME == 'win-x64'
               working-directory: ${{ env.OUTPUT_ROOT }}/en-us
               run: |
                   signtool verify /v /pa ./${{ env.NAME }}-service-win-x64.msi
@@ -179,6 +154,7 @@ jobs:
               run: echo "TAGNAME=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_OUTPUT
 
             - name: Upload to S3 with checksum
+              if: matrix.RUNTIME == 'win-x64'
               run: |
                   winInstallerFile=${{ env.NAME }}-service-win-x64.msi
                   winInstallerChecksum=$(md5sum "$winInstallerFile" | cut -d ' ' -f 1)
