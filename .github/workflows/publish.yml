@@ -154,7 +154,6 @@ jobs:
               run: echo "TAGNAME=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_OUTPUT
 
             - name: Upload to S3 with checksum
-              if: matrix.RUNTIME == 'win-x64'
               run: |
                   winInstallerFile=${{ env.NAME }}-service-win-x64.msi
                   winInstallerChecksum=$(md5sum "$winInstallerFile" | cut -d ' ' -f 1)
