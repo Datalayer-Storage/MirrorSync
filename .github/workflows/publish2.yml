@@ -117,7 +117,7 @@ jobs:
       - name: Signtool verify WinInstaller
         working-directory: ${{ env.OUTPUT_ROOT }}/en-us
         run: |
-          signtool verify /v /pa ./${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
+          signtool verify /v /pa ./${{ env.NAME }}-service-win-x64.msi
         shell: cmd
 
       - name: Upload installer
