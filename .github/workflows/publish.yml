@@ -173,7 +173,7 @@ jobs:
 
       - name: Upload to S3 with checksum
         run: |
-          winInstallerFile=${{ env.NAME }}-${{ env.VERSION }}-service-win-x64.msi
+          winInstallerFile=${{ env.NAME }}-service-win-x64.msi
           winInstallerChecksum=$(md5sum "$winInstallerFile" | cut -d ' ' -f 1)
           aws s3 cp "$winInstallerFile" s3://dlaas/releases/${{ env.NAME }}-${{ env.VERSION }}-service-win-x64-${{ steps.tag-name.outputs.TAGNAME }}.msi --metadata md5="$winInstallerChecksum"
           aws s3 cp "$winInstallerFile" s3://dlaas/releases/${{ env.NAME }}-${{ env.VERSION }}-service-win-x64-latest.msi --metadata md5="$winInstallerChecksum"
