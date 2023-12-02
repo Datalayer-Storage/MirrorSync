@@ -6,8 +6,10 @@ set -o errexit
 
 # Create the destination directory if it doesn't exist
 sudo mkdir -p /usr/local/bin/dlsync
-# and copy the standa lone binarty to it
-sudo cp -r ./publish/standalone/linux-x64/* /usr/local/bin/dlsync/
+# and copy the standalone binarty to it
+sudo cp ./publish/standalone/linux-x64/DlMirrorSync /usr/local/bin/dlsync/
+# don't overwrite the settings file if present
+sudo cp -n ./publish/standalone/linux-x64/appsettings.json /usr/local/bin/dlsync/
 
 # Get the directory of the current script
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -24,5 +26,5 @@ sudo sed "s/USERNAME/$USERNAME/g" "$DIR/dlsync.service" > "/etc/systemd/system/d
 
 # start the service and set to start on boot
 sudo systemctl start dlsync
-sudo systemctl status dlsync
 sudo systemctl enable dlsync
+sudo systemctl status dlsync
