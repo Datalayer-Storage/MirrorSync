@@ -16,14 +16,14 @@ public sealed class ChiaConfig
     private string GetConfigPath()
     {
         // first see if we have a config file path from the command line
-        var configPath = _configuration.GetValue("chia_config_path", "");
+        var configPath = _configuration.GetValue("ChiaConfigPath", "");
         if (!string.IsNullOrEmpty(configPath))
         {
             return configPath;
         }
 
         // then see if we have a config file path in the appsettings.json
-        configPath = _configuration.GetValue("App:chia_config_path", "");
+        configPath = _configuration.GetValue("DlMirrorSync:ChiaConfigPath", "");
         if (!string.IsNullOrEmpty(configPath))
         {
             return configPath;

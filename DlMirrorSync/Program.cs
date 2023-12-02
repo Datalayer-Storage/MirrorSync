@@ -4,11 +4,12 @@ using Microsoft.Extensions.Logging.EventLog;
 using chia.dotnet;
 
 // the only expected cli arg is an optional path to a chia config file
-// if present add it to the config with the key 'chia_config_path'
+// if present add it to the config with the key 'ChiaConfigPath'
 if (args.Length == 1)
 {
     // just modifying the args itself since that gets passed through to the builder
-    args = [$"chia_config_path={args.First()}"];
+    // and show up as a configration entry
+    args = [$"ChiaConfigPath={args.First()}"];
 }
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
