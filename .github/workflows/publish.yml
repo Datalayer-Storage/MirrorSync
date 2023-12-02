@@ -178,7 +178,7 @@ jobs:
         - name: Upload deb
           uses: actions/upload-artifact@v3
           with:
-            name: ${{ env.NAME }}-${{ matrix.name }}-deb
+            name: ${{ matrix.name }}-deb
             path: ${{ github.workspace }}/deb/*.deb
 
     release_deb:
@@ -196,7 +196,7 @@ jobs:
         - name: Download Linux x64 deb
           uses: actions/download-artifact@v3
           with:
-            name: DlMirrorSync-linux-x64-deb
+            name: linux-x64-deb
             path: DlMirrorSync-linux-x64-deb
 
         - name: Get tag name
