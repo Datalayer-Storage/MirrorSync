@@ -3,7 +3,8 @@ using chia.dotnet;
 namespace DlMirrorSync;
 
 /// <summary>
-/// Wrapper type to hold multiple RpcClient instances by name
+/// Wrapper type to hold multiple RpcClient instances by name and dsiposae of them 
+/// It owns the RpcClient lifetimes so don't dispose when retreived
 /// </summary>
 public sealed class RpcClientHost : IDisposable
 {

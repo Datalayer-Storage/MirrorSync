@@ -33,5 +33,5 @@ builder.Services
     .AddSingleton((provider) => new FullNodeProxy(provider.GetRequiredService<RpcClientHost>().GetRpcClient("full_node"), "DlMirrorSync"))
     .AddSingleton((provider) => new WalletProxy(provider.GetRequiredService<RpcClientHost>().GetRpcClient("wallet"), "DlMirrorSync"));
 
-IHost host = builder.Build();
+var host = builder.Build();
 host.Run();

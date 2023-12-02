@@ -45,7 +45,6 @@ public sealed class SyncService
                 if (_configuration.GetValue("DlMirrorSync:MirrorServer", true) && mirrorUris.Any() && haveFunds)
                 {
                     // if we are out of funds to add mirrors, stop trying but continue subscribing
-                    // next time around we will try again
                     haveFunds = await AddMirror(id, reserveAmount, mirrorUris, fee, stoppingToken);
                 }
             }

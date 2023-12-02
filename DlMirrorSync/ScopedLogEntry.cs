@@ -21,7 +21,7 @@ public sealed class ScopedLogEntry : IDisposable
     }
 
     /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// Log the message indicating end of scope
     /// </summary>
     public void Dispose()
     {
