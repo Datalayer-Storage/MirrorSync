@@ -182,7 +182,6 @@ jobs:
             cp build-scripts/deb/datalayer-storage-mirror-sync@.service deb/$CLI_DEB_BASE/etc/systemd/system/datalayer-storage-mirror-sync@.service
             chmod +x deb/$CLI_DEB_BASE/opt/datalayer-storage-mirror-sync/datalayer-storage-mirror-sync
             ln -s ../../opt/datalayer-storage-mirror-sync/datalayer-storage-mirror-sync "deb/$CLI_DEB_BASE/usr/bin/datalayer-storage-mirror-sync"
-            chmod 755 deb/$CLI_DEB_BASE/DEBIAN/postinst  # make postinst script executable
             dpkg-deb --build --root-owner-group "deb/$CLI_DEB_BASE"
 
         - name: Upload deb
