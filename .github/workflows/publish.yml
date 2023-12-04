@@ -188,6 +188,13 @@ jobs:
         - debs
         - build
 
+      strategy:
+        matrix:
+          include:
+            - name: datalayer-storage-mirror-sync-linux-x64
+              os: linux_x64  # this must match the out-path directory in package.json
+              platform: amd64
+
       steps:
         - uses: chrislennon/action-aws-cli@v1.1
           env:
@@ -196,7 +203,7 @@ jobs:
         - name: Download Linux x64 deb
           uses: actions/download-artifact@v3
           with:
-            name: linux-x64-deb
+            name: ${{ matrix.name }}-deb  # Adjust the matrix name as per your configuration
             path: DlMirrorSync-linux-x64-deb
 
         - name: Get tag name
