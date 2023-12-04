@@ -26,26 +26,36 @@ public sealed class SyncService
             var fee = await _chiaService.GetFee(reserveAmount, stoppingToken);
 
             using var __ = new ScopedLogEntry(_logger, "Getting subscriptions.");
+
             var subscriptions = await _dataLayer.Subscriptions(stoppingToken);
+            var ownedStores = await _dataLayer.GetOwnedStores(stoppingToken);
+
             var mirrorUris = await _mirrorService.GetMyMirrorUris(stoppingToken);
             _logger.LogInformation("Using mirror uris: {mirrorUris}", string.Join("\n", mirrorUris));
 
             var haveFunds = true;
             await foreach (var id in _mirrorService.FetchLatest(stoppingToken))
             {
-                // subscribing and mirroring are split into two separate operations
-                // as we might subscribe to a singleton that we don't want to mirror
-                // or subscribe to a singleton but not be able to pay for the mirror etc
-                if (!subscriptions.Contains(id))
+                // don't subscribe or mirror our owned stores
+                if (!ownedStores.Contains(id))
                 {
-                    using var ___ = new ScopedLogEntry(_logger, $"Subscribing to {id}");
-                    await _dataLayer.Subscribe(id, Enumerable.Empty<string>(), stoppingToken);
-                }
+                    // subscribing and mirroring are split into two separate operations
+                    // as we might subscribe to a singleton that we don't want to mirror
+                    // or subscribe to a singleton but not be able to pay for the mirror etc
 
-                if (_configuration.GetValue("DlMirrorSync:MirrorServer", true) && mirrorUris.Any() && haveFunds)
-                {
-                    // if we are out of funds to add mirrors, stop trying but continue subscribing
-                    haveFunds = await AddMirror(id, reserveAmount, mirrorUris, fee, stoppingToken);
+                    // don't subscribe to a store we already have
+                    if (!subscriptions.Contains(id))
+                    {
+                        using var ___ = new ScopedLogEntry(_logger, $"Subscribing to {id}");
+                        await _dataLayer.Subscribe(id, Enumerable.Empty<string>(), stoppingToken);
+                    }
+
+                    // mirror if we are a mirror server, haven't already mirrored and have enough funding
+                    if (_configuration.GetValue("DlMirrorSync:MirrorServer", true) && mirrorUris.Any() && haveFunds)
+                    {
+                        // if we are out of funds to add mirrors, stop trying but continue subscribing
+                        haveFunds = await AddMirror(id, reserveAmount, mirrorUris, fee, stoppingToken);
+                    }
                 }
             }
         }
