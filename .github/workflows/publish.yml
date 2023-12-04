@@ -154,7 +154,12 @@ jobs:
           uses: actions/download-artifact@v3
           with:
             name: ${{ env.NAME }}-linux-x64
-            path: ${{ env.OUTPUT_ROOT }}/standalone/linux-x64/
+            path: ${{ matrix.name }}
+
+        - name: files
+          working-directory: ${{ matrix.name }}
+          run: ls -al
+          shell: bash
 
         - name: Get tag name
           id: tag-name
