@@ -153,8 +153,8 @@ jobs:
         - name: Download Linux artifacts
           uses: actions/download-artifact@v3
           with:
-            name: ${{ env.NAME }}-${{ matrix.RUNTIME }}
-            path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
+            name: ${{ env.NAME }}-linux-x64
+            path: ${{ env.OUTPUT_ROOT }}/standalone/linux-x64/
 
         - name: Get tag name
           id: tag-name
