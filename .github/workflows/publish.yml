@@ -143,7 +143,7 @@ jobs:
         matrix:
           include:
             - name: datalayer-storage-mirror-sync-linux-x64
-              os: linux_x64  # this must match the out-path directory in package.json
+              os: linux-x64  # this must match the out-path directory in package.json
               platform: amd64
 
       steps:
@@ -153,8 +153,8 @@ jobs:
         - name: Download Linux artifacts
           uses: actions/download-artifact@v3
           with:
-            name: ${{ env.NAME }}-linux_x64
-            path: ${{ env.OUTPUT_ROOT }}/standalone/linux_x64/
+            name: ${{ env.NAME }}-${{ matrix.RUNTIME }}
+            path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
 
         - name: Get tag name
           id: tag-name
@@ -197,7 +197,7 @@ jobs:
         matrix:
           include:
             - name: datalayer-storage-mirror-sync-linux-x64
-              os: linux_x64  # this must match the out-path directory in package.json
+              os: linux-x64  # this must match the out-path directory in package.json
               platform: amd64
 
       steps:
