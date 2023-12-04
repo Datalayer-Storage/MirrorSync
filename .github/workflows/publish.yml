@@ -221,11 +221,11 @@ jobs:
 
         - name: Upload to S3 with checksum
           run: |
-            for deb_file in datalayer-storage-uploader-linux-x64-deb/*.deb; do
+            for deb_file in ${{ matrix.name }}-deb/*.deb; do
               if [ -f "$deb_file" ]; then
                 deb_checksum=$(md5sum "$deb_file" | cut -d ' ' -f 1)
                 aws s3 cp "$deb_file" s3://dlaas/releases/ --metadata md5="$deb_checksum"
-                aws s3 cp "$deb_file" s3://dlaas/releases/datalayer-storage-uploader-linux-x64-deb-latest.deb --metadata md5="$deb_checksum"
+                aws s3 cp "$deb_file" s3://dlaas/releases/${{ matrix.name }}-deb-latest.deb --metadata md5="$deb_checksum"
               fi
             done
           env:
