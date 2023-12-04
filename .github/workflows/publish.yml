@@ -117,6 +117,11 @@ jobs:
                   name: ${{ env.NAME }}-service-${{ matrix.RUNTIME }}.msi
                   path: ${{ env.OUTPUT_ROOT }}/en-us/*.msi
 
+            - name: output artifact name
+              id: artifact-name
+              run: |
+                  echo "::set-output name=artifact_name::${{ env.NAME }}-${{ matrix.RUNTIME }}"
+
             - name: Upload binaries
               uses: actions/upload-artifact@v3
               with:
