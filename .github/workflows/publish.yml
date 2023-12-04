@@ -154,10 +154,10 @@ jobs:
           uses: actions/download-artifact@v3
           with:
             name: ${{ env.NAME }}-linux-x64
-            path: ${{ matrix.name }}
+            path: ${{ matrix.name }}/linux-x64
 
         - name: files
-          working-directory: ${{ matrix.name }}
+          working-directory: ${{ matrix.name }}/linux-x64
           run: ls -al
           shell: bash
 
