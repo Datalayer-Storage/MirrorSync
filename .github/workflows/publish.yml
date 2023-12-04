@@ -210,25 +210,17 @@ jobs:
             ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
         - name: Download Linux x64 deb
-          uses: actions/download-artifact@v3
+          uses: actions/download-artifact@v2
           with:
             name: ${{ matrix.name }}-deb  # Adjust the matrix name as per your configuration
-            path: DlMirrorSync-linux-x64-deb
+            path: ${{ matrix.name }}-deb
 
         - name: Get tag name
           id: tag-name
           run: echo "TAGNAME=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_OUTPUT
 
-        - name: Create zips
-          run: |
-            zip -r datalayer-storage-uploader-linux-x64-${{ steps.tag-name.outputs.TAGNAME }}.zip datalayer-storage-uploader-linux-x64
-        
         - name: Upload to S3 with checksum
           run: |
-            linuxFile=datalayer-storage-uploader-linux-x64-${{ steps.tag-name.outputs.TAGNAME }}.zip
-            linuxChecksum=$(md5sum "$linuxFile" | cut -d ' ' -f 1)
-            aws s3 cp "$linuxFile" s3://dlaas/releases/ --metadata md5="$linuxChecksum"
-            aws s3 cp "$linuxFile" s3://dlaas/releases/datalayer-storage-uploader-linux-x64-latest.zip --metadata md5="$linuxChecksum"
             for deb_file in datalayer-storage-uploader-linux-x64-deb/*.deb; do
               if [ -f "$deb_file" ]; then
                 deb_checksum=$(md5sum "$deb_file" | cut -d ' ' -f 1)
