@@ -29,11 +29,12 @@ jobs:
 
             - name: Set VERSION environment variable
               run: |
-                if [[ "${{ github.ref_name }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                  echo "VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
-                else
-                  echo "VERSION=0.0.0" >> $GITHUB_ENV
-                fi
+                if (${{ github.ref_name }} -match '^\d+\.\d+\.\d+$') {
+                  echo "VERSION=${{ github.ref_name }}" >> $env:GITHUB_ENV
+                } else {
+                  echo "VERSION=0.0.0" >> $env:GITHUB_ENV
+                }
+              shell: pwsh
 
             - name: Setup .NET
               uses: actions/setup-dotnet@v3
