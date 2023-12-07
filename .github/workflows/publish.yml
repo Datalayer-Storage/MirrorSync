@@ -22,11 +22,20 @@ jobs:
             SRC: "DlMirrorSync"
             NAME: "DlMirrorSync"
             FRAMEWORK: "net8.0"
-            VERSION: "0.2.2"
             OUTPUT_ROOT: "./publish"
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
+
+            - name: Set VERSION environment variable
+              run: |
+                $tagName = "${{ github.ref_name }}"
+                if ($tagName -match '^\d+\.\d+\.\d+$') {
+                    echo "VERSION=$tagName" >> $env:GITHUB_ENV
+                } else {
+                    echo "VERSION=0.0.0" >> $env:GITHUB_ENV
+                }
+              shell: pwsh
 
             - name: Setup .NET
               uses: actions/setup-dotnet@v3
@@ -132,7 +141,6 @@ jobs:
         SRC: "DlMirrorSync"
         NAME: "DlMirrorSync"
         FRAMEWORK: "net8.0"
-        VERSION: "0.2.2"
         OUTPUT_ROOT: "./publish"
       name: Build ${{ matrix.name }} deb
       runs-on: ubuntu-latest
@@ -149,6 +157,14 @@ jobs:
       steps:
         - name: Checkout Code
           uses: actions/checkout@v3
+
+        - name: Set VERSION environment variable
+          run: |
+            if [[ "${{ github.ref_name }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
+            else
+              echo "VERSION=0.0.0" >> $GITHUB_ENV
+            fi
 
         - name: Download Linux artifacts
           uses: actions/download-artifact@v3
@@ -232,7 +248,7 @@ jobs:
             AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             AWS_REGION: 'us-east-1'
-          
+
     release_windows:
         runs-on: ubuntu-latest
         strategy:
@@ -242,13 +258,20 @@ jobs:
             SRC: "DlMirrorSync"
             NAME: "DlMirrorSync"
             FRAMEWORK: "net8.0"
-            VERSION: "0.2.2"
             OUTPUT_ROOT: "./publish"
         if: startsWith(github.ref, 'refs/tags/')
         needs:
             - build
 
         steps:
+            - name: Set VERSION environment variable
+              run: |
+                if [[ "${{ github.ref_name }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                  echo "VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
+                else
+                  echo "VERSION=0.0.0" >> $GITHUB_ENV
+                fi
+
             - uses: chrislennon/action-aws-cli@v1.1
               env:
                   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
@@ -259,7 +282,7 @@ jobs:
                   name: ${{ env.NAME }}-${{ matrix.RUNTIME }}
                   path: ${{ env.OUTPUT_ROOT }}/standalone/${{ matrix.RUNTIME }}/
 
-            
+
 
             - name: Download Windows Installer
               uses: actions/download-artifact@v3
