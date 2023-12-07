@@ -22,7 +22,7 @@ public sealed class ChiaConfig
             return configPath;
         }
 
-        // then see if we have a config file path in the appsettings.json
+        // then see if we have a config file path in the appsettings.json or environment variable
         configPath = _configuration.GetValue("DlMirrorSync:ChiaConfigPath", "");
         if (!string.IsNullOrEmpty(configPath))
         {
@@ -49,6 +49,10 @@ public sealed class ChiaConfig
         return Config.Open();
     }
 
+    /// <summary>
+    /// These are the endpoints that will have RpcClients created and cached
+    /// </summary>
+    /// <returns></returns>
     public IEnumerable<string> GetEndpointNames() => new string[] { "data_layer", "wallet", "full_node" };
 
     public EndpointInfo GetEndpoint(string name)
