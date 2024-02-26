@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="chia-dotnet" Version="2.1.9" />
+        <PackageReference Include="chia-dotnet" Version="3.2.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
